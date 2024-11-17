@@ -13,16 +13,40 @@ function SignUp(){
     const dispatch=useDispatch()
     const Signup=async(data)=>{
         seterror("")
+        // try {
+        //     const userData = await useauthenticate.createaccount({...data})
+        //     if (userData) {
+        //         const userData = await useauthenticate.getcurrentinfo()
+        //         if(userData) dispatch(login(...userData));
+        //         nav("/")
+        //     }
+        // } catch (error) {
+        //     seterror(error.message)
+        // }
         try {
-            const userData = await useauthenticate.createaccount({...data})
-            if (userData) {
-                const userData = await useauthenticate.getcurrentinfo()
-                if(userData) dispatch(login(...userData));
-                nav("/")
+            // Create a new account
+            const accountResponse = await useauthenticate.createaccount({ ...data });
+            if (!accountResponse) {
+                throw new Error("Account creation failed.");
             }
+        
+            // Fetch current user information after account creation
+            const currentUser = await useauthenticate.getcurrentinfo();
+            if (!currentUser) {
+                throw new Error("Unable to fetch user info after signup.");
+            }
+        
+            // Dispatch login action with the current user's data
+            dispatch(login(currentUser)); // Ensure `currentUser` structure matches `login` action requirements
+        
+            // Redirect to the home page
+            nav("/");
         } catch (error) {
-            seterror(error.message)
+            // Handle and display the error
+            seterror(error.message);
+            console.error("Signup or login error:", error);
         }
+        
     }
     return(
         <>
